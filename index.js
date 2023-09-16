@@ -124,7 +124,7 @@ app.get("/regional/:region/:start/:end", async (req, res) => {
 
   // verify region is valid
   if (!regions[region]) {
-    res.status(400).send("Invalid region");
+    res.status(400).send({ error: "Invalid region" });
     return;
   }
 
@@ -140,13 +140,21 @@ app.get("/regional/:region/:start/:end", async (req, res) => {
 
   // verify start and end are valid dates
   if (isNaN(Date.parse(start)) || isNaN(Date.parse(end))) {
-    res.status(400).send("Invalid date, please enter in YYYY-MM-DD format");
+    res
+      .status(400)
+      .send({ error: "Invalid date, please enter in YYYY-MM-DD format" });
     return;
   }
 
   // verify start is before end
   if (Date.parse(start) >= Date.parse(end)) {
-    res.status(400).send("Start date must be before end date");
+    res.status(400).send({ error: "Start date must be before end date" });
+    return;
+  }
+
+  // verify start and end are not in the future
+  if (Date.parse(start) > Date.now() || Date.parse(end) > Date.now()) {
+    res.status(400).send({ error: "Dates cannot be in the future" });
     return;
   }
 
@@ -218,7 +226,7 @@ app.get("/regional/:region/:start/:end", async (req, res) => {
 app.get("/regional/:region/:date", async (req, res) => {
   // check if valid request method
   if (req.method !== "GET") {
-    res.status(400).send(`Invalid request method ${req.method}`);
+    res.status(400).send({ error: `Invalid request method ${req.method}` });
     return;
   }
 
@@ -228,13 +236,21 @@ app.get("/regional/:region/:date", async (req, res) => {
 
   // verify region is valid
   if (!regions[region]) {
-    res.status(400).send("Invalid region");
+    res.status(400).send({ error: "Invalid region" });
     return;
   }
 
-  // verify date is valid
+  // verify date format is valid
   if (isNaN(Date.parse(date))) {
-    res.status(400).send("Invalid date, please enter in YYYY-MM-DD format");
+    res
+      .status(400)
+      .send({ error: "Invalid date, please enter in YYYY-MM-DD format" });
+    return;
+  }
+
+  // verify date is not in the future
+  if (Date.parse(date) > Date.now()) {
+    res.status(400).send({ error: "Date cannot be in the future" });
     return;
   }
 
