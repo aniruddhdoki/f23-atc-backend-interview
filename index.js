@@ -85,6 +85,17 @@ const regions = Object.freeze({
   },
 });
 
+let supported_regions = {};
+for (const [key, value] of Object.entries(regions)) {
+  supported_regions[key] = {};
+  value["carbon"]
+    ? (supported_regions[key]["carbon"] = true)
+    : (supported_regions[key]["carbon"] = false);
+  value["region_type"]
+    ? (supported_regions[key]["covid"] = true)
+    : (supported_regions[key]["covid"] = false);
+}
+
 /**
  * GET: a hello!
  */
@@ -283,6 +294,21 @@ app.get("/regional/:region/:date", async (req, res) => {
 
   // send response
   res.status(200).send(response);
+});
+
+/**
+ * GET supported regions
+ * @returns {Object} which data is available for which regions
+ */
+app.get("/data_availability", (req, res) => {
+  // check if valid request method
+  if (req.method !== "GET") {
+    res.status(400).send(`Invalid request method ${req.method}`);
+    return;
+  }
+
+  // send response
+  res.status(200).send(supported_regions);
 });
 
 app.listen(PORT, () => {
